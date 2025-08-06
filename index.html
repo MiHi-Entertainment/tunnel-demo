@@ -47,8 +47,8 @@
       function animate() {
         requestAnimationFrame(animate);
 
-        // Slow spin for subtle vibe
-        tunnel.rotation.z += 0.001;
+        // No rotation for straight tunnel
+        // tunnel.rotation.z += 0.001; // removed to stop sideways movement
 
         // Move camera forward
         camera.position.z -= speed;
