@@ -18,13 +18,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
       let scene = new THREE.Scene();
-      let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      let camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
       let renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
 
       let geometry = new THREE.CylinderGeometry(5, 5, 200, 32, 32, true);
-      let material = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true, side: THREE.BackSide });
+      let material = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        wireframe: true,
+        side: THREE.BackSide,
+      });
       let tunnel = new THREE.Mesh(geometry, material);
       tunnel.rotation.x = Math.PI / 2;
       scene.add(tunnel);
@@ -32,16 +41,29 @@
       camera.position.z = 0;
       camera.position.y = 0;
 
+      let speed = 0.5;
+      let maxZ = -100;
+
       function animate() {
         requestAnimationFrame(animate);
-        tunnel.rotation.z += 0.002;
-        camera.position.z -= 0.5;
+
+        // Slow spin for subtle vibe
+        tunnel.rotation.z += 0.001;
+
+        // Move camera forward
+        camera.position.z -= speed;
+
+        // Loop camera position for infinite tunnel effect
+        if (camera.position.z < maxZ) {
+          camera.position.z = 0;
+        }
+
         renderer.render(scene, camera);
       }
 
       animate();
 
-      window.addEventListener('resize', () => {
+      window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
