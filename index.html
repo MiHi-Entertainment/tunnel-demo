@@ -2,12 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Tunnel Demo</title>
+    <title>Elegant Hallway Tunnel</title>
     <style>
       body {
         margin: 0;
         overflow: hidden;
-        background: black;
+        background: #1a0e00; /* dark brownish background */
       }
       canvas {
         display: block;
@@ -17,43 +17,88 @@
   <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-      let scene = new THREE.Scene();
-      let camera = new THREE.PerspectiveCamera(
+      const scene = new THREE.Scene();
+
+      // Camera setup
+      const camera = new THREE.PerspectiveCamera(
         75,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
       );
-      let renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
-
-      let geometry = new THREE.CylinderGeometry(5, 5, 200, 32, 32, true);
-      let material = new THREE.MeshBasicMaterial({
-        color: 0x00ffff,
-        wireframe: true,
-        side: THREE.BackSide,
-      });
-      let tunnel = new THREE.Mesh(geometry, material);
-      tunnel.rotation.x = Math.PI / 2;
-      scene.add(tunnel);
-
       camera.position.z = 0;
       camera.position.y = 0;
 
-      let speed = 0.5;
-      let maxZ = -100;
+      // Renderer
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Tunnel (hallway) - cylinder, dark brown smooth material
+      const tunnelGeometry = new THREE.CylinderGeometry(5, 5, 200, 64, 1, true);
+      const tunnelMaterial = new THREE.MeshStandardMaterial({
+        color: 0x3b2f1a, // rich dark brown
+        side: THREE.BackSide,
+        roughness: 0.7,
+        metalness: 0.1,
+      });
+      const tunnel = new THREE.Mesh(tunnelGeometry, tunnelMaterial);
+      tunnel.rotation.x = Math.PI / 2;
+      scene.add(tunnel);
+
+      // Floor and ceiling - add subtle texture with slight difference in color
+      // Optional: for now, we'll keep it simple, can add later
+
+      // Pillars - create many pillars along the hallway sides
+      const pillarGeometry = new THREE.BoxGeometry(0.3, 8, 0.3);
+      const pillarMaterial = new THREE.MeshStandardMaterial({
+        color: 0x5c4a1a,
+        roughness: 0.8,
+        metalness: 0.2,
+      });
+
+      const pillarCount = 20;
+      for (let i = 0; i < pillarCount; i++) {
+        // Left side pillar
+        const pillarLeft = new THREE.Mesh(pillarGeometry, pillarMaterial);
+        pillarLeft.position.set(-4.5, -1.5, i * -10 + 5);
+        scene.add(pillarLeft);
+
+        // Right side pillar
+        const pillarRight = new THREE.Mesh(pillarGeometry, pillarMaterial);
+        pillarRight.position.set(4.5, -1.5, i * -10 + 5);
+        scene.add(pillarRight);
+      }
+
+      // Ceiling lights - small glowing spheres and point lights
+      const lightSphereGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+      const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xffd966 }); // warm light
+
+      for (let i = 0; i < pillarCount; i++) {
+        // Light mesh for glow
+        const lightMesh = new THREE.Mesh(lightSphereGeometry, lightMaterial);
+        lightMesh.position.set(0, 3.5, i * -10 + 5);
+        scene.add(lightMesh);
+
+        // Point light for actual illumination
+        const pointLight = new THREE.PointLight(0xffd966, 0.8, 10);
+        pointLight.position.set(0, 3.5, i * -10 + 5);
+        scene.add(pointLight);
+      }
+
+      // Ambient lighting to soften shadows
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+      scene.add(ambientLight);
+
+      // Animation loop
+      const speed = 0.5;
+      const maxZ = -100;
 
       function animate() {
         requestAnimationFrame(animate);
 
-        // No rotation for straight tunnel
-        // tunnel.rotation.z += 0.001; // removed to stop sideways movement
-
-        // Move camera forward
         camera.position.z -= speed;
 
-        // Loop camera position for infinite tunnel effect
         if (camera.position.z < maxZ) {
           camera.position.z = 0;
         }
@@ -63,6 +108,7 @@
 
       animate();
 
+      // Handle resizing
       window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
