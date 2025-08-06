@@ -2,12 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Elegant Hallway Tunnel</title>
+    <title>Sleek Hallway</title>
     <style>
       body {
         margin: 0;
         overflow: hidden;
-        background: #1a0e00; /* dark brownish background */
+        background: #1a0e00;
       }
       canvas {
         display: block;
@@ -19,7 +19,7 @@
     <script>
       const scene = new THREE.Scene();
 
-      // Camera setup
+      // Camera
       const camera = new THREE.PerspectiveCamera(
         75,
         window.innerWidth / window.innerHeight,
@@ -34,23 +34,20 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
 
-      // Tunnel (hallway) - cylinder, dark brown smooth material
-      const tunnelGeometry = new THREE.CylinderGeometry(5, 5, 200, 64, 1, true);
-      const tunnelMaterial = new THREE.MeshStandardMaterial({
-        color: 0x3b2f1a, // rich dark brown
-        side: THREE.BackSide,
+      // Hallway - use BoxGeometry, scale way down X and Y, stretch Z
+      const hallwayGeometry = new THREE.BoxGeometry(10, 6, 200);
+      const hallwayMaterial = new THREE.MeshStandardMaterial({
+        color: 0x3b2f1a,
+        side: THREE.BackSide, // render inside walls
         roughness: 0.7,
         metalness: 0.1,
       });
-      const tunnel = new THREE.Mesh(tunnelGeometry, tunnelMaterial);
-      tunnel.rotation.x = Math.PI / 2;
-      scene.add(tunnel);
 
-      // Floor and ceiling - add subtle texture with slight difference in color
-      // Optional: for now, we'll keep it simple, can add later
+      const hallway = new THREE.Mesh(hallwayGeometry, hallwayMaterial);
+      scene.add(hallway);
 
-      // Pillars - create many pillars along the hallway sides
-      const pillarGeometry = new THREE.BoxGeometry(0.3, 8, 0.3);
+      // Pillars - inside hallway walls
+      const pillarGeometry = new THREE.BoxGeometry(0.3, 5, 0.3);
       const pillarMaterial = new THREE.MeshStandardMaterial({
         color: 0x5c4a1a,
         roughness: 0.8,
@@ -59,38 +56,39 @@
 
       const pillarCount = 20;
       for (let i = 0; i < pillarCount; i++) {
+        const zPos = i * -10 + 5;
+
         // Left side pillar
         const pillarLeft = new THREE.Mesh(pillarGeometry, pillarMaterial);
-        pillarLeft.position.set(-4.5, -1.5, i * -10 + 5);
+        pillarLeft.position.set(-4.5, -1.5, zPos);
         scene.add(pillarLeft);
 
         // Right side pillar
         const pillarRight = new THREE.Mesh(pillarGeometry, pillarMaterial);
-        pillarRight.position.set(4.5, -1.5, i * -10 + 5);
+        pillarRight.position.set(4.5, -1.5, zPos);
         scene.add(pillarRight);
       }
 
-      // Ceiling lights - small glowing spheres and point lights
+      // Ceiling lights
       const lightSphereGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-      const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xffd966 }); // warm light
+      const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xffd966 });
 
       for (let i = 0; i < pillarCount; i++) {
-        // Light mesh for glow
+        const zPos = i * -10 + 5;
+
         const lightMesh = new THREE.Mesh(lightSphereGeometry, lightMaterial);
-        lightMesh.position.set(0, 3.5, i * -10 + 5);
+        lightMesh.position.set(0, 2.5, zPos);
         scene.add(lightMesh);
 
-        // Point light for actual illumination
         const pointLight = new THREE.PointLight(0xffd966, 0.8, 10);
-        pointLight.position.set(0, 3.5, i * -10 + 5);
+        pointLight.position.set(0, 2.5, zPos);
         scene.add(pointLight);
       }
 
-      // Ambient lighting to soften shadows
-      const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
       scene.add(ambientLight);
 
-      // Animation loop
+      // Animate — zooming forward
       const speed = 0.5;
       const maxZ = -100;
 
@@ -108,7 +106,7 @@
 
       animate();
 
-      // Handle resizing
+      // Resize handler
       window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
